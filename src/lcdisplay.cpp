@@ -32,7 +32,7 @@ namespace VertigusElectio
 		}
 	}
 
-	void BaseLCDisplay::update()
+    void BaseLCDisplay::updateLCDContent()
 	{
 		for (unsigned row = 0; row < this->rows; ++row)
 		{
@@ -71,6 +71,7 @@ namespace VertigusElectio
 	void BaseLCDisplay::OperatorCol::operator=(const char *str)
 	{
 		bool str_end=false;
+		if(this->row < this->lcd->rows)
 		for (unsigned c = 0; c < lcd->cols; ++c)
 		{
 			if(str[c]==0)
@@ -79,11 +80,29 @@ namespace VertigusElectio
 			}
 			if(str_end)
 			{
-				*(lcd->contentArray+(row * lcd->cols)+c)=this->lcd->space_chr;
+				*(lcd->contentArray+(this->row * lcd->cols)+c)=this->lcd->space_chr;
 			}
 			else
 			{
-				*(lcd->contentArray+(row * lcd->cols)+c)=str[c];
+				*(lcd->contentArray+(this->row * lcd->cols)+c)=str[c];
+			}
+		}
+	}
+
+	void BaseLCDisplay::OperatorCol::insertString(const char *str, int len)
+	{
+		if(this->row<this->lcd->rows)
+		{
+			if(len<0)
+			{
+				this->operator =(str);
+			}
+			else
+			{
+				for (unsigned c = 0; c < (unsigned)len  && c < this->lcd->cols; ++c)
+				{
+					*(lcd->contentArray+(this->row * lcd->cols)+c)=str[c];
+				}
 			}
 		}
 	}
@@ -99,11 +118,13 @@ namespace VertigusElectio
 
 	void BaseLCDisplay::OperatorCol::OperatorColBrac::operator=(char chr)
 	{
-		*(lcd->contentArray+(this->row * lcd->cols)+this->col)=chr;
+		if(this->row < this->lcd->rows && this->col < this->lcd->cols)
+			*(lcd->contentArray+(this->row * lcd->cols)+this->col)=chr;
 	}
 
 	void BaseLCDisplay::OperatorCol::OperatorColBrac::operator=(const char *str)
 	{
+		if(this->row < this->lcd->rows)
 		for (unsigned c = this->col; c < lcd->cols; ++c)
 		{
 			if(str[c-this->col]==0)
@@ -116,4 +137,49 @@ namespace VertigusElectio
 			}
 		}
 	}
+
+	void BaseLCDisplay::OperatorCol::centered(const char *str, int len, int rowSize, int left)
+	{
+		//Get stringsize if len given (>0)
+		if(len<0)
+			for (len = 0; str[len]!=0; ++len);
+
+		//If no rowsize is given get it
+		if(rowSize<0)
+			rowSize=this->lcd->cols;
+
+		//Calculate left shift
+		int leftpos=((rowSize-len)/2)+left;
+
+
+		(*this->lcd)[this->row][leftpos].insertString(str, len);
+
+	}
+	void BaseLCDisplay::OperatorCol::centered(const char chr, int rowSize, int left)
+	{
+
+	}
+
+
+	void BaseLCDisplay::OperatorCol::OperatorColBrac::insertString(const char *str, int len)
+	{
+		if(( this->row<this->lcd->rows ) && ( this->col < this->lcd->cols ))
+		{
+			if(len<0)
+			{
+				this->operator =(str);
+			}
+			else
+			{
+				for (unsigned c = 0; c < (unsigned)len  && (c+this->col) < this->lcd->cols; ++c)
+				{
+					*(lcd->contentArray+(this->row * lcd->cols)+ (c+this->col))=str[c];
+				}
+			}
+		}
+	}
+
+
+
+
 }

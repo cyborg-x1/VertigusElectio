@@ -13,19 +13,23 @@ namespace VertigusElectio
 
 class BaseLCDisplay
 {
+
+public:
 	class OperatorCol
 	{
 		class OperatorColBrac
 		{
 			BaseLCDisplay *lcd;
-			unsigned row;
-			unsigned col;
+			const unsigned row;
+			const unsigned col;
 
 		public:
 			OperatorColBrac(BaseLCDisplay *lcd, unsigned row, unsigned col);
 			void operator=(char chr);
 			void operator=(const char *str);
+			void insertString(const char *str, int len);
 		};
+
 
 		friend OperatorColBrac;
 		friend BaseLCDisplay;
@@ -37,6 +41,9 @@ class BaseLCDisplay
 		OperatorColBrac operator[](unsigned col);
 
 		void operator=(const char *str);
+		void insertString(const char *str, int len=-1);
+		void centered(const char *str, int len=-1, int rowSize=-1, int left=0);
+		void centered(const char chr, int rowSize=-1, int left=0);
 
 	};
 	friend OperatorCol;
@@ -56,7 +63,7 @@ public:
 
 	virtual void writeCharToLCD(unsigned row, unsigned col, char chr)=0;
 
-	virtual void update();
+	virtual void updateLCDContent();
 
 	void clearDisp();
 
@@ -66,7 +73,7 @@ public:
 template <unsigned ROWS, unsigned COLS>
 class LCDisplay : public BaseLCDisplay
 {
-private:
+protected:
 	char content[ROWS*COLS];
 	char written_content[ROWS*COLS];
 
