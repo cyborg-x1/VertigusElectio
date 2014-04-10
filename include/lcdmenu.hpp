@@ -40,8 +40,6 @@ public:
 
 
 class LCDMenu {
-	BaseLCDisplay *lcd;
-	LCDBaseMenuEntry *current;
 
 public:
 
@@ -59,6 +57,16 @@ public:
 		DISPLAY_ALT,
 	}DisableRule;
 
+
+private:
+	BaseLCDisplay *lcd;
+	LCDBaseMenuEntry *current;
+	SortRule sortRule;
+	DisableRule disableRule;
+	char disableChar;
+
+
+public:
 
 	LCDMenu(BaseLCDisplay *lcd, SortRule sortrule, DisableRule disablerule, char disabledChar='#');
 	virtual ~LCDMenu();
