@@ -11,6 +11,9 @@
 namespace VertigusElectio
 {
 
+/**
+ * The base display class for every display, to provide a common interface for multiple different character displays
+ */
 class BaseLCDisplay
 {
 
@@ -73,17 +76,6 @@ protected:
 
 
 	/**
-	 * These variables contain the state for a busy flag input trigger for the next write
-	 * @{
-	 */
-	unsigned update_row;
-	unsigned update_col;
-	/**
-	 * @}
-	 */
-
-
-	/**
 	 *
 	 * These variables tell if the display supports cursors and blinking mode or not.
 	 * @{
@@ -103,10 +95,6 @@ protected:
 	/**
 	 * @}
 	 */
-
-
-
-
 
 	/**
 	 * This array contains the content on about how the display should look like at the moment
@@ -155,22 +143,28 @@ public:
 	virtual void setCursorBlink(bool blink){};
 
 	/**
-	 * This function is a virtual dummy for reading the busy flag,
+	 * If the display features a busy feature, this must be implemented in a derived class
+	 * @return Should return 0 if the display is able to receive commands
 	 */
-	virtual bool readBusyFlag(){return 0;};
+	virtual bool busy(){return 0;};
 
 	/**
 	 * This virtual function should write the current state to the LCD, it must be coded by the implementation of the real display class
-	 * @param blocking This parameter tells if the display should wait for a busy flag
 	 */
-	virtual void updateLCDContent(bool blocking=0)=0;
+	virtual void updateLCDContent()=0;
 
 	/**
-	 * A class reimplementing this function MUST call clearArrays()
+	 * This function can be reimplemented to save time, for example by waiting for busy flags,
+	 * if the display supports a single clear command.
+	 * A reimplemented function <b>MUST</b> call clearArrays()
 	 */
 	virtual void clearDisp();
 };
 
+
+/**
+ * Template class for implementing a derived clase to BaseLCDisplay
+ */
 template <unsigned ROWS, unsigned COLS>
 class LCDisplay : public BaseLCDisplay
 {

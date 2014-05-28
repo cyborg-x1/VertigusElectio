@@ -20,8 +20,6 @@ namespace VertigusElectio
 		cols(cols),
 		cursor_pos_row(0),
 		cursor_pos_col(0),
-		update_row(0),
-		update_col(0),
 		cursor_blink_supported(blink_support),
 		cursor_display_supported(cursor_support),
 		cursor_blink(false),
