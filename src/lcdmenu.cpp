@@ -28,7 +28,7 @@ LCDMenu::~LCDMenu() {
 
 void LCDMenu::addEntry(LCDBaseMenuEntry* entry)
 {
-	if(current=0)
+	if(current==0)
 	{
 		current=entry;
 	}

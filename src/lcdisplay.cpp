@@ -15,35 +15,35 @@ namespace VertigusElectio
 	 * BaseLCDisplay
 	 */
 
-	BaseLCDisplay::BaseLCDisplay(unsigned rows,unsigned cols, char *contentArray, char *writtenContent, char space_chr)
+	BaseLCDisplay::BaseLCDisplay(unsigned rows,unsigned cols, char *contentArray, char *writtenContent, bool cursor_support, bool blink_support,char space_chr)
 	:	rows(rows),
 		cols(cols),
+		cursor_pos_row(0),
+		cursor_pos_col(0),
+		update_row(0),
+		update_col(0),
+		cursor_blink_supported(blink_support),
+		cursor_display_supported(cursor_support),
+		cursor_blink(false),
+		cursor_display(false),
 		contentArray(contentArray),
 		writtenContent(writtenContent),
 		space_chr(space_chr)
 	{}
 
+	BaseLCDisplay::~BaseLCDisplay(){};
+
 	void BaseLCDisplay::clearDisp()
+	{
+		clearArrays();
+	}
+
+
+	void BaseLCDisplay::clearArrays()
 	{
 		for (unsigned row = 0; row < this->rows; ++row) {
 			for (unsigned col = 0; col < this->cols; ++col) {
 				*(this->contentArray+(row * this->cols)+col)=this->space_chr;
-			}
-		}
-	}
-
-    void BaseLCDisplay::updateLCDContent()
-	{
-		for (unsigned row = 0; row < this->rows; ++row)
-		{
-			for (unsigned col = 0; col < this->cols; ++col)
-			{
-				if(*(this->contentArray+(row * this->cols)+col) !=
-				   *(this->writtenContent+(row * this->cols)+col))
-				{
-					writeCharToLCD(row,col, *(this->contentArray+(row * this->cols)+col) );
-					*(this->writtenContent+(row * this->cols)+col)=*(this->contentArray+(row * this->cols)+col);
-				}
 			}
 		}
 	}
@@ -67,6 +67,10 @@ namespace VertigusElectio
 	{
 		return BaseLCDisplay::OperatorCol::OperatorColBrac(this->lcd, this->row, col);
 	}
+
+
+
+
 
 	void BaseLCDisplay::OperatorCol::operator=(const char *str)
 	{
@@ -138,14 +142,20 @@ namespace VertigusElectio
 		}
 	}
 
-	void BaseLCDisplay::OperatorCol::centered(const char *str, int len, int rowSize, int left)
+	void BaseLCDisplay::OperatorCol::centered(const char *str, int len, int rowSize, unsigned left)
 	{
+		//fill left digits with spaces
+		for (unsigned l = 0;  l < left && l <this->lcd->cols; ++ l)
+		{
+			(*this->lcd)[this->row][l]=this->lcd->space_chr;
+		}
+
 		//Get stringsize if len given (>0)
 		if(len<0)
 			for (len = 0; str[len]!=0; ++len);
 
 		//If no rowsize is given get it
-		if(rowSize<0)
+		if(rowSize<=0)
 			rowSize=this->lcd->cols;
 
 		//Calculate left shift
@@ -154,10 +164,15 @@ namespace VertigusElectio
 
 		(*this->lcd)[this->row][leftpos].insertString(str, len);
 
-	}
-	void BaseLCDisplay::OperatorCol::centered(const char chr, int rowSize, int left)
-	{
+		//fill remaining spaces right with spaces
+		for (unsigned r = len+left; r < this->lcd->cols; ++r) {
+			(*this->lcd)[this->row][r]=this->lcd->space_chr;
+		}
 
+	}
+	void BaseLCDisplay::OperatorCol::centered(const char chr, int rowSize, unsigned left)
+	{
+		centered(&chr,1,rowSize,left);
 	}
 
 
@@ -178,6 +193,7 @@ namespace VertigusElectio
 			}
 		}
 	}
+
 
 
 
