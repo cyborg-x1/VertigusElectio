@@ -118,7 +118,7 @@ protected:
 
 public:
 	BaseLCDisplay(unsigned rows,unsigned cols, char *contentArray, char *writtenContent, bool cursor_support=false, bool blink_support=false, char space_chr=' ');
-	virtual ~BaseLCDisplay();
+	~BaseLCDisplay(){};
 
 	OperatorCol operator[](unsigned row);
 

@@ -29,8 +29,6 @@ namespace VertigusElectio
 		space_chr(space_chr)
 	{}
 
-	BaseLCDisplay::~BaseLCDisplay(){};
-
 	void BaseLCDisplay::clearDisp()
 	{
 		clearArrays();
