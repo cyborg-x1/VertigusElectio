@@ -18,6 +18,15 @@ class BaseLCDisplay
 {
 
 public:
+	typedef enum
+	{
+		RIGHT,
+		LEFT,
+		CENTER,
+	}TextAlignment;
+
+
+
 	class OperatorCol
 	{
 		class OperatorColBrac
@@ -120,8 +129,11 @@ public:
 	BaseLCDisplay(unsigned rows,unsigned cols, char *contentArray, char *writtenContent, bool cursor_support=false, bool blink_support=false, char space_chr=' ');
 	~BaseLCDisplay(){};
 
+	/**
+	 * This function is for easy user display write access,
+	 * DO NOT use on embedded systems, it is damn F****ING expensive -> 1KB on AVR per call!
+	 */
 	OperatorCol operator[](unsigned row);
-
 
 	/**
 	 * This function is a virtual dummy, if the display supports the cursor display it must be implemented in the derived class.
@@ -151,7 +163,7 @@ public:
 	/**
 	 * This virtual function should write the current state to the LCD, it must be coded by the implementation of the real display class
 	 */
-	virtual void updateLCDContent()=0;
+	virtual void updateLCDContent(bool breaking)=0;
 
 	/**
 	 * This function can be reimplemented to save time, for example by waiting for busy flags,
@@ -159,6 +171,29 @@ public:
 	 * A reimplemented function <b>MUST</b> call clearArrays()
 	 */
 	virtual void clearDisp();
+
+
+	/**
+	 * This function write a character to a specified postion on the display
+	 *
+	 * @param row The row where the char will be inserted
+	 * @param col The column where the char will be inserted
+	 * @param chr The character.
+	 */
+	void put(char chr, unsigned row, unsigned col);
+
+	/**
+	 * This function writes a string to a specified position on the display
+	 * @param str The string to write to the display
+	 * @param row The row where the string will be inserted
+	 * @param col The position from the left(on alignment left and center)/right(on alignment right)
+	 * @param align The alginment of the text
+	 * @param fieldSize This is the field size of the string, everything in that size will be cleared
+	 * @param len The length of the string necessary if not terminated with \0
+	 *
+	 */
+	void put(char *str, unsigned row, unsigned col, unsigned fieldSize=0, TextAlignment align=LEFT, int len=-1);
+
 };
 
 

@@ -107,6 +107,73 @@ namespace VertigusElectio
 		}
 	}
 
+	void BaseLCDisplay::put(char chr, unsigned row, unsigned col)
+	{
+		if(col<this->cols && row<this->cols)
+		{
+			*(this->contentArray+(row * this->cols)+col)=chr;
+		}
+	}
+	void BaseLCDisplay::put(char *str, unsigned row, unsigned col, unsigned fieldSize, TextAlignment align,  int len)
+	{
+
+		if(len<0)
+			for(len=0;str[len]!='\0';++len);
+
+		if(row<this->rows&&col<this->cols)
+		{
+			switch(align)
+			{
+			case LEFT:
+			{		unsigned c=0;
+					for(; c < (unsigned)len  && (col+c) < this->cols; ++c)
+					{
+						*(this->contentArray+(row * this->cols)+col+c)=str[c];
+					}
+
+					if(fieldSize>0)
+					{
+						for(;c<fieldSize && (col+c) < this->cols;++c)
+						{
+							*(this->contentArray+(row * this->cols)+col+c)=this->space_chr;
+						}
+					}
+			}
+				break;
+			case RIGHT:
+//			{		unsigned c=this->col; TODO
+//					for(; c < (unsigned)len; ++c)
+//					{
+//
+//
+//
+//						if(len-1+ccol-c < this->cols)
+//							*(this->contentArray+(row * this->cols)+len-1+(this->cols-col)-c)=str[len-1-c];
+//					}
+//
+//					if(fieldSize>0)
+//					{
+//						for(;c<fieldSize && (col+c) < this->cols;++c)
+//						{
+//							*(this->contentArray+(row * this->cols)+col+c)=this->space_chr;
+//						}
+//					}
+				break;
+			case CENTER:
+
+				break;
+			}
+		}
+	}
+
+
+
+
+
+
+
+
+
 	/*
 	 * BaseLCDisplay::OperatorCol::OperatorColBrac
 	 */
