@@ -15,7 +15,7 @@ namespace VertigusElectio
 	 * BaseLCDisplay
 	 */
 
-	BaseLCDisplay::BaseLCDisplay(unsigned rows,unsigned cols, char *contentArray, char *writtenContent, bool cursor_support, bool blink_support,char space_chr)
+	BaseLCDisplay::BaseLCDisplay(unsigned rows,unsigned cols, char *contentArray, char *writtenContent, bool cursor_support, bool blink_support, char space_chr, char overflow_chr)
 	:	rows(rows),
 		cols(cols),
 		cursor_pos_row(0),
@@ -26,7 +26,8 @@ namespace VertigusElectio
 		cursor_display(false),
 		contentArray(contentArray),
 		writtenContent(writtenContent),
-		space_chr(space_chr)
+		space_chr(space_chr),
+		overflow_chr(overflow_chr)
 	{}
 
 	void BaseLCDisplay::clearDisp()
@@ -114,11 +115,21 @@ namespace VertigusElectio
 			*(this->contentArray+(row * this->cols)+col)=chr;
 		}
 	}
-	void BaseLCDisplay::put(char *str, unsigned row, unsigned col, unsigned fieldSize, TextAlignment align,  int len)
+
+	void BaseLCDisplay::put(const char *str, unsigned row, unsigned col, unsigned fieldSize, TextAlignment align,  int len)
 	{
+		bool oversize=false;
+
 
 		if(len<0)
 			for(len=0;str[len]!='\0';++len);
+
+		if(len>(int)fieldSize && fieldSize != 0)
+		{
+			len=fieldSize;
+			oversize=true;
+		}
+
 
 		if(row<this->rows&&col<this->cols)
 		{
@@ -126,6 +137,7 @@ namespace VertigusElectio
 			{
 			case LEFT:
 			{		unsigned c=0;
+
 					for(; c < (unsigned)len  && (col+c) < this->cols; ++c)
 					{
 						*(this->contentArray+(row * this->cols)+col+c)=str[c];
@@ -138,28 +150,68 @@ namespace VertigusElectio
 							*(this->contentArray+(row * this->cols)+col+c)=this->space_chr;
 						}
 					}
+
+					if(oversize && this->overflow_chr != '\0')
+					{
+						*(this->contentArray+(row * this->cols)+col+len-1)=this->overflow_chr;
+					}
 			}
 				break;
 			case RIGHT:
-//			{		unsigned c=this->col; TODO
-//					for(; c < (unsigned)len; ++c)
-//					{
-//
-//
-//
-//						if(len-1+ccol-c < this->cols)
-//							*(this->contentArray+(row * this->cols)+len-1+(this->cols-col)-c)=str[len-1-c];
-//					}
-//
-//					if(fieldSize>0)
-//					{
-//						for(;c<fieldSize && (col+c) < this->cols;++c)
-//						{
-//							*(this->contentArray+(row * this->cols)+col+c)=this->space_chr;
-//						}
-//					}
+			{
+				int posright=(this->cols-1-col);
+				int posleft=(fieldSize!=0)?posright-fieldSize:posright-len;
+				if(posleft<0) posleft=0;
+				int c=len-1;
+				int p=posright;
+				for(; p>=0 && p>posleft && c>=0 ; --c, --p)
+				{
+					if(p<(int)this->cols)
+						*(this->contentArray+(row * this->cols)+p)=str[c];
+				}
+
+				for(;p>=0 && p>posleft ;--p)
+					*(this->contentArray+(row * this->cols)+p)=this->space_chr;
+
+				if(oversize && this->overflow_chr != '\0')
+				{
+					*(this->contentArray+(row * this->cols)+posright)=this->overflow_chr;
+				}
+
+			}
 				break;
 			case CENTER:
+				unsigned posright=(fieldSize!=0)?col+fieldSize:this->cols-1;
+
+				unsigned c=col;
+				//Clear the whole thing ...
+				for (; c < posright; ++c) {
+					*(this->contentArray+(row * this->cols)+c)=this->space_chr;
+				}
+
+				if(len<(int)fieldSize)
+				{
+					c=col+((fieldSize-len)/2);
+				}
+				else
+				{
+					c=col;
+				}
+
+				for (int chr=0; c < this->cols && chr<len; ++c, ++chr)
+				{
+					*(this->contentArray+(row * this->cols)+c)=str[chr];
+				}
+
+				if(oversize)
+				{
+					unsigned end=col+fieldSize-1;
+
+					if(end>this->cols-1)
+						end=this->cols-1;
+
+					*(this->contentArray+(row * this->cols)+end)=this->overflow_chr;
+				}
 
 				break;
 			}

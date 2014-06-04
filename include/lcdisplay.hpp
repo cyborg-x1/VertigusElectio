@@ -120,13 +120,19 @@ protected:
 	 */
 	char space_chr;
 
+	/**
+	 * This variable specifies the overflow character for the put function
+	 * This character will be placed on the end of the string to show that the string was to large for the field.
+	 */
+	char overflow_chr;
+
 	void clearArrays();
 
 protected:
 
 
 public:
-	BaseLCDisplay(unsigned rows,unsigned cols, char *contentArray, char *writtenContent, bool cursor_support=false, bool blink_support=false, char space_chr=' ');
+	BaseLCDisplay(unsigned rows,unsigned cols, char *contentArray, char *writtenContent, bool cursor_support=false, bool blink_support=false, char space_chr=' ', char overflow_chr='\0');
 	~BaseLCDisplay(){};
 
 	/**
@@ -192,7 +198,7 @@ public:
 	 * @param len The length of the string necessary if not terminated with \0
 	 *
 	 */
-	void put(char *str, unsigned row, unsigned col, unsigned fieldSize=0, TextAlignment align=LEFT, int len=-1);
+	void put(const char *str, unsigned row, unsigned col, unsigned fieldSize=0, TextAlignment align=LEFT, int len=-1);
 
 };
 
@@ -208,11 +214,12 @@ protected:
 	char written_content[ROWS*COLS];
 
 public:
-	LCDisplay(char space_chr=' ')
-	:BaseLCDisplay(ROWS,COLS, content, written_content, space_chr)
+	LCDisplay(bool cursor_support=false, bool blink_support=false, char space_chr=' ',char overflow_chr='\0')
+	:BaseLCDisplay(ROWS,COLS, content, written_content, cursor_support, blink_support, space_chr, overflow_chr)
 	{
 		this->clearDisp();
 	}
+	~LCDisplay(){}
 };
 
 
