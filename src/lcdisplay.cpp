@@ -118,6 +118,10 @@ namespace VertigusElectio
 
 	void BaseLCDisplay::put(const char *str, unsigned row, unsigned col, unsigned fieldSize, TextAlignment align,  int len)
 	{
+
+
+
+
 		bool oversize=false;
 
 
@@ -164,13 +168,13 @@ namespace VertigusElectio
 				if(posleft<0) posleft=0;
 				int c=len-1;
 				int p=posright;
-				for(; p>=0 && p>posleft && c>=0 ; --c, --p)
+				for(; p>=0 && p>=posleft && c>=0 ; --c, --p)
 				{
 					if(p<(int)this->cols)
 						*(this->contentArray+(row * this->cols)+p)=str[c];
 				}
 
-				for(;p>=0 && p>posleft ;--p)
+				for(;p>=0 && p>=posleft ;--p)
 					*(this->contentArray+(row * this->cols)+p)=this->space_chr;
 
 				if(oversize && this->overflow_chr != '\0')
